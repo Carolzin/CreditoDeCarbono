@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #e4e4e4;
 }
 
 /* Header */
@@ -249,6 +250,7 @@ h3 {
 /* Segunda Seção */
 #secao2{
     flex-direction: column;
+    background-color: white;
 }
 #topo_secao2 {
     position: relative;
@@ -678,6 +680,28 @@ th {
 #linhaTabela{
     height: 150px;
     font-size: 30px;
+}
+
+#voltarTop { /* Estilizando botão de voltar ao topo da página */
+    position: fixed; 
+    bottom: 60px;    
+    right: 20px;  
+    background-color: #4CAF50; 
+    color: white;    
+    border: none;   
+    border-radius: 5px; 
+    cursor: pointer; 
+    display: none;   
+    z-index: 3;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    align-items: center;
+}
+
+#voltarTop img{
+    width: 25px;
+    height: auto;
 }
 
 

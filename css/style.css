@@ -247,10 +247,13 @@ h3 {
 }
 
 /* Segunda Seção */
+#secao2{
+    flex-direction: column;
+}
 #topo_secao2 {
     position: relative;
     width: 100%;
-    height: 300px; 
+    height: 200px; 
     background-color: #001216;
     overflow: hidden;
 }
@@ -265,6 +268,27 @@ h3 {
     clip-path: ellipse(70% 100% at 50% 100%);
 }
 
+.titulo1 {
+    display: block;
+    width: 100%; 
+    text-align: center;
+    font-size: 43px; 
+    color: black; 
+    margin: 20px 0 0 0;
+    clear: both;
+    margin-top: -80px;
+    z-index: 2;
+}
+
+@media (max-width: 800px) { /* Responsividade - Seção 2*/
+    .titulo1 {
+        font-size: 35px;
+    }
+}
+.titulo {
+    font-size: 35px;
+}
+
 /* Terceira Seção */
 #secao3 {
     display: flex;
@@ -277,6 +301,7 @@ h3 {
     text-align: center;
     font-size: 43px; 
     margin: 20px 0 0 0;
+    z-index: 1;
 }
 
 .subtitulo {
@@ -306,7 +331,7 @@ h3 {
 }
 
 .pagina {
-    width: 12%;
+    width: 14%;
     height: 5px;
     border-radius: 5px;
     background-color: #e4e4e4;
@@ -501,7 +526,7 @@ input[type="text"]:focus {
     box-shadow: 0 0 5px rgba(76, 174, 71, 0.5);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1100px) { /* Responsividade - Seção 3*/
     #secao3 {
         min-height: 100vh;
     }
@@ -595,7 +620,65 @@ input[type="text"]:focus {
     }
 }
 
+table { /* Estilizando Tabela */
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0; 
+}
 
+#tabelaEmissao {
+    border-radius: 10px; 
+    overflow: hidden; 
+}
+
+th, td {
+    background-color: white;
+    padding: 8px;
+    text-align: center;
+    color: #575757;
+    border-top: none; 
+    border-bottom: 2px solid #e4e4e4; 
+    border-left: 2px solid #e4e4e4; 
+}
+
+th {
+    background-color: #4CAE47;
+    color: white;
+    border-left: none;
+}
+
+#tabelaEmissao tr:first-child th {
+    border-left: none; 
+}
+
+#tabelaEmissao td:first-child, #tabelaEmissao th:first-child {
+    border-left: none; 
+}
+
+#txtTotal {
+    background-color: white;
+    color: #4CAE47;
+    font-weight: 600;
+}
+
+#tabelaCompensacao {
+    border-radius: 10px; 
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+#tabelaCompensacao tr:first-child th {
+    border-left: none; 
+}
+
+#tabelaCompensacao td:first-child, #tabelaCompensacao th:first-child {
+    border-left: none; 
+}
+
+#linhaTabela{
+    height: 150px;
+    font-size: 30px;
+}
 
 
 /* Quarta Seção */
@@ -676,8 +759,7 @@ input[type="text"]:focus {
     text-align: center;
 }
 
-/* Responsividade - Seção 5 */
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Responsividade - Seção 5 */
     .rodape-div-1, .rodape-div-2, .rodape-div-3, .rodape-div-4 {
         width: calc(50% - 20px);
     }

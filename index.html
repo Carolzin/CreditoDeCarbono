@@ -41,6 +41,7 @@
         <!-- Segunda seção -->
         <section class="secao" id="secao2">
             <div id="topo_secao2"></div>
+            <h1 class="titulo1">Importância da Calculadora de <span>Carbono</span></h1>
         </section>
 
         <!-- Terceira seção -->
@@ -50,7 +51,6 @@
 
             <div class="card">
                 <div class="barra-progresso">
-                    <div class="pagina"></div>
                     <div class="pagina"></div>
                     <div class="pagina"></div>
                     <div class="pagina"></div>
@@ -167,17 +167,89 @@
                     <!-- Página 4 - Card MultiEtapas -->
                     <div class="form-pagina" id="pagina4">
                         <div class="coluna-imagem">
-                            <img src="img/img_pagina3.svg"/>
+                            <img src="img/img_pagina4.svg"/>
                         </div>
                         <div class="coluna-forms" id="forms4">
+                            <h1 id="foms_titulo">Resíduos</h1>
+                            <h2>Quantos Kg de resíduos você produz em um período mensal:</h2>
+                            <input type="number" id="residuos" placeholder="Kg"/>
+                            <br>
+                            <h1 id="foms_titulo">Carne Bovina</h1>
+                            <h2>Quantos Kg de carne você consome em um período mensal:</h2>
+                            <input type="number" id="carneBov" placeholder="Kg"/>
                         </div>
                     </div>
                     <!-- Página 5 - Card MultiEtapas -->
                     <div class="form-pagina" id="pagina5">
                         <div class="coluna-imagem">
-                            <img src="img/img_pagina4.1.svg"/>
+                            <img src="img/img_pagina6.svg"/>
                         </div>
                         <div class="coluna-forms" id="forms5">
+                            <h1 id="foms_titulo">Emissões Totais</h1>
+                            <h2>Resultado médio de suas emissões mensais e anuais:</h2>
+                            <!-- Conteúdo Tabela - Resultado Total de Emissões -->
+                            <table id="tabelaEmissao">
+                                <thead>
+                                    <tr>
+                                        <th>Categoria</th>
+                                        <th>Tipo de Dado</th>
+                                        <th>Fator de Emissão</th>
+                                        <th>Emissão Média Mensal</th>
+                                        <th>Emissão Média Anual</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Eletricidade</td>
+                                        <td>Kwh</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gás</td>
+                                        <td>Nº de Botijões ou m³</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Transportes Particulares</td>
+                                        <td>Litros ou Kg</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Transportes Aéreos</td>
+                                        <td>Nº de Viagens</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Resíduos</td>
+                                        <td>Kg</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Carne Bovina</td>
+                                        <td>Kg</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                    <tr>
+                                        <td id="txtTotal">Total de Emissões:</td>
+                                        <td>tCO2e</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <!-- Página 6 - Card MultiEtapas -->
@@ -186,14 +258,25 @@
                             <img src="img/img_pagina5.svg"/>
                         </div>
                         <div class="coluna-forms" id="forms6">
-                        </div>
-                    </div>
-                    <!-- Página 7 - Card MultiEtapas -->
-                    <div class="form-pagina" id="pagina7">
-                        <div class="coluna-imagem">
-                            <img src="img/img_pagina6.svg"/>
-                        </div>
-                        <div class="coluna-forms" id="forms7">
+                            <h1 id="foms_titulo">Compesar Emissões</h1>
+                            <h2>Compense suas emissões por meio da aquisição de créditos de carbono e do apoio a projetos de reflorestamento:</h2>
+                            <!-- Conteúdo Tabela - Compensação -->
+                            <table id="tabelaCompensacao">
+                                <thead>
+                                    <tr>
+                                        <th>Emissões Totais</th>
+                                        <th>Créditos de Carbono</th>
+                                        <th>Árvores Plantadas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="linhaTabela">
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                        <td>Dados</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </form>
@@ -204,7 +287,6 @@
                 </div>
             </div>
         </section>
-
 
         <!-- Quarta seção -->
         <section id="secao4">

@@ -57,4 +57,32 @@ function updateProgressBar() {
     });
 }
 
+// Atualiza o texto do botão "proxBtn"
+document.addEventListener('DOMContentLoaded', function() {
+    const proxBtn = document.getElementById('proxBtn');
+
+    function atualizarTextoBotao() {
+        const paginas = document.querySelectorAll('.form-pagina');
+        paginas.forEach((pagina, index) => {
+            if (pagina.classList.contains('active')) {
+                if (index === 3) {  // Página 4 
+                    proxBtn.innerText = 'Resultado';
+                } else if (index === 4) {  // Página 5
+                    proxBtn.innerText = 'Finalizar';
+                } else if (index === 5) {  // Página 6
+                    proxBtn.innerText = 'Compensar (R$00,00)';
+                } else {
+                    proxBtn.innerText = 'Próximo';
+                }
+            }
+        });
+    }
+
+    document.getElementById('proxBtn').addEventListener('click', atualizarTextoBotao);
+    document.getElementById('voltBtn').addEventListener('click', atualizarTextoBotao);
+    
+    atualizarTextoBotao();
+});
+
+
 updateFormPaginas();

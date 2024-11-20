@@ -1,7 +1,21 @@
-def calcular_pegada_carbono():
+from flask import Flask, render_template, request
+
+app = Flask(__name__) 
+
+@app.route('/')  # Define a rota para a página inicial
+def index():
+    return render_template('index.html')  # Renderiza o template index.html
+
+@app.route('/calcular', methods=['POST'])  # Define a rota para o cálculo
+def calcular():
     try:
-    #Atividades Cotianas em relação ao consumo de Energia
-        regioes = { # Dividindo os Estados de acordo com a região correspondente para receber valor da tarifa
+        nome = request.form.get('nome') # Obtem o primeiro nome do usuário
+        if not nome:
+            raise ValueError("O nome é obrigatório.")
+
+    #ELETRICIDADE -------------------------------------------------------------------------------------------------------------------------
+        # Defini as Regiões de acordo com o dado de entrada do Estado
+        regioes = { 
             "Norte": ["Acre", "Amapá", "Amazonas", "Pará", "Rondônia", "Roraima", "Tocantins"],
             "Nordeste": ["Alagoas", "Bahia", "Ceará", "Maranhão", "Paraíba", "Pernambuco", "Piauí", "Rio Grande do Norte", "Sergipe"],
             "Centro-Oeste": ["Distrito Federal", "Goiás", "Mato Grosso", "Mato Grosso do Sul"],
@@ -9,179 +23,226 @@ def calcular_pegada_carbono():
             "Sul": ["Paraná", "Rio Grande do Sul", "Santa Catarina"]
         }
 
-
-        tarifas = { # Tarifas médias por região (em R$/kWh)
-            "Norte": 0.80, 
-            "Nordeste": 0.75, 
-            "Centro-Oeste": 0.78,
-            "Sudeste": 0.85, 
-            "Sul": 0.82
+        # Tarifas médias por região
+        tarifas = { 
+            "Norte": 0.90, 
+            "Nordeste": 0.85, 
+            "Centro-Oeste": 0.75,
+            "Sudeste": 0.70, 
+            "Sul": 0.80
         }
 
-        # Entrada de dados referente ao consumo de Eletricidade ------------------------------------------
-        estado = input("Em qual Estado do Brasil você mora: ").strip()
+        estado = request.form.get('estado')  # Verifica o nome do Estado informado
+
+        # Determina a região com base no estado informado
         regiao = next((r for r, estados in regioes.items() if estado in estados), None)
+        if not regiao:
+            raise ValueError("Estado inválido.")
 
-        if regiao is None:
-            print("Estado inválido. Tente novamente.")
-            return
+        tarifa_media = tarifas[regiao]  # Obtém a tarifa média da região
+        consumo_kwh = request.form.get('consumo_kwh')  # Consumo de eletricidade em kWh
+        valor_reais = request.form.get('valor_reais')  # Valor em reais do consumo de eletricidade
 
-        tarifa_media = tarifas[regiao]
-        consumo_kwh = input("Digite o consumo de energia em kWh: ").strip()
-        valor_reais = input("Digite o valor gasto em reais: ").strip()
-
-        if consumo_kwh: # Valida o tipo de dado informado, sendo ele expresso pelo consumo em KWh ou em R$
+        # Captura a entrada de consumo através do consumo expresso KWh ou Reais
+        if consumo_kwh:
             consumo_kwh = float(consumo_kwh)
-            if consumo_kwh < 0:
-                raise ValueError("O consumo de energia deve ser positivo.")
         elif valor_reais:
             valor_reais = float(valor_reais)
-            if valor_reais < 0:
-                raise ValueError("O valor da conta deve ser positivo.")
-            consumo_kwh = valor_reais / tarifa_media
-        else: # Valida se um dos campos foram preenchidos
-            print("Informe o consumo (kWh) ou o valor gasto (R$).")
-            return
+            consumo_kwh = valor_reais / tarifa_media  # Cálculo de consumo com base no valor e tarifa média por região
+        else:
+            raise ValueError("Consumo de eletricidade não informado.")  # Verifica se o campo de consumo de eletricidade foi preenchido
 
-        fator_emissao_eletricidade = 0.1  # Fator médio de kg/CO₂ por kWh
-        pegada_carbono_eletricidade = consumo_kwh * fator_emissao_eletricidade # Cálculo da pegada de carbono em relação ao consumo de eletricidade
+        #Fatores de Emissão para Eletricidade
+        fator_emissao_eletricidade = 0.1  # kg CO2 por kWh
 
+        # Calculo da pegada total de carbono por consumo de Eletricidade
+        pegada_carbono_eletricidade = consumo_kwh * fator_emissao_eletricidade  # Calcula a pegada total de carbono da eletricidade
+        media_anual_eletricidade = pegada_carbono_eletricidade * 12  # Emissão média anual da eletricidade
 
-        # Entrada de dados referente ao consumo de Gás ------------------------------------------
-        consumo_botijao = input("Informe a quantidade de botijões consumidos por mês: ").strip()
-        consumo_gas_encanado = input("Informe a quantidade de gás encanado consumida em m³ por mês: ").strip()
+    #GÁS -------------------------------------------------------------------------------------------------------------------------
+        # Obtém o consumo de gás
+        consumo_botijao = request.form.get('consumo_botijao') # Consumo de gás pela quantidade de botijões
+        consumo_gas_encanado = request.form.get('consumo_gas_encanado') # Consumo de gás em m³
 
-        fator_emissao_botijao = 25.09 # Emissão em nº de botijões de gás por Kg/CO2
-        fator_emissao_gas_encanado = 2.04 # Emissão em m³ de gás encanado por Kg/CO2
+        # Fatores de emissão para gás
+        fator_emissao_botijao = 25.09  # kg de CO2 por botijão
+        fator_emissao_gas_encanado = 2.04  # kg de CO2 por m³ de gás encanado
 
-        pegada_carbono_gas = 0 # Inicializando variável da pegada de carbono
-
-        if consumo_botijao: # Valida o tipo de consumo de gás informado
+        # Calculo da pegada total de carbono por consumo de Gás
+        pegada_carbono_gas = 0 
+        if consumo_botijao:
             consumo_botijao = float(consumo_botijao)
-            if consumo_botijao < 0:
-                raise ValueError("A quantidade de botijões deve ser positiva.")
-            pegada_carbono_gas += consumo_botijao * fator_emissao_botijao
+            pegada_carbono_gas += consumo_botijao * fator_emissao_botijao  # Calcula a pegada de carbono do botijão
 
         if consumo_gas_encanado:
             consumo_gas_encanado = float(consumo_gas_encanado)
-            if consumo_gas_encanado < 0:
-                raise ValueError("A quantidade de gás encanado deve ser positiva.")
-            pegada_carbono_gas += consumo_gas_encanado * fator_emissao_gas_encanado # Cálculo da pegada de carbono em relação ao consumo de gás
+            pegada_carbono_gas += consumo_gas_encanado * fator_emissao_gas_encanado  # Calcula a pegada de carbono do gás encanado
+        media_anual_gas = pegada_carbono_gas * 12  # Emissão média anual do gás
 
+    #TRANSPORTE PARTICULARES -------------------------------------------------------------------------------------------------------------------------
+        # Obtém o consumo de combustível
+        tipo_combustivel = request.form.get('tipo_combustivel') # Tipo de combustível
+        consumo_combustivel = request.form.get('consumo_combustivel') # Consumo de combustível em Litros ou Kg
+        valor_combustivel = request.form.get('valor_combustivel') # Consumo de combustível em Reais
 
-    #Atividades Cotianas em relação ao uso de Transportes
-        # Entrada de dados referente ao uso de Transportes Particulares ------------------------------------------
-        tipo_combustivel = input("Informe o tipo de combustível (Gasolina, Diesel, CNG, Etanol): ").strip().lower()
-        consumo_combustivel = input("Digite o consumo de combustível em litros/kg: ").strip()
-        valor_combustivel = input("Digite o valor gasto em combustível (R$): ").strip()
-
-        fator_emissao_particular = { # Fatores médios de emissão (kg/CO₂ por unidade)
+        # Fatores de emissão dos combustíveis
+        fator_emissao_particular = { 
             "gasolina": 2.31,
             "diesel": 2.68,
             "cng": 2.75,
             "etanol": 1.93
         }
-        precos_combustivel = { # Preços médios  por tipo de combustível
+        # Preços dos combustíveis
+        precos_combustivel = { 
             "gasolina": 6.09,
             "diesel": 5.94,
             "cng": 3.50,
             "etanol": 4.04
         }
 
-        pegada_carbono_particular = 0  # Inicializando variável da pegada de carbono
+        pegada_carbono_particular = 0  
+        if tipo_combustivel in fator_emissao_particular:
+            fator_emissao = fator_emissao_particular[tipo_combustivel]  # Obtém o fator de emissão de acordo com o tipo de combustível
+            preco_combustivel = precos_combustivel[tipo_combustivel]  # Obtém o preço de acordo com tipo de combustível
 
-        if tipo_combustivel in fator_emissao_particular: # Valida o tipo de combustível
-            fator_emissao = fator_emissao_particular[tipo_combustivel]
-            preco_combustivel = precos_combustivel[tipo_combustivel]
-
-            if consumo_combustivel: # A condição verifica se o usuário informou o consumo em litros/kg ou o valor gasto em reais
+            # Calculo da pegada total de carbono por uso de Transportes Particulares
+            if consumo_combustivel:
                 consumo_combustivel = float(consumo_combustivel)
-                if consumo_combustivel < 0:
-                    raise ValueError("O consumo de combustível deve ser positivo.")
             elif valor_combustivel:
                 valor_combustivel = float(valor_combustivel)
-                if valor_combustivel < 0:
-                    raise ValueError("O valor gasto em combustível deve ser positivo.")
-                consumo_combustivel = valor_combustivel / preco_combustivel  # Calcula o consumo em litros/kg
-            else: # Valida se um dos campos foram preenchidos
-                print("Informe o consumo de combustível (litros/kg) ou o valor gasto (R$).")
-                return
+                consumo_combustivel = valor_combustivel / preco_combustivel  # Cálculo de consumo a partir do valor
+            else:
+                raise ValueError("Consumo de combustível não informado.")  # Verifica se o campo de consumo do combustível foi preenchido
 
-            pegada_carbono_particular += consumo_combustivel * fator_emissao # Calculo da pegada de carbono referente ao uso de transportes particulares 
-        else: 
-            print("Tipo de combustível inválido. Tente novamente.")
-            return
-        
+            pegada_carbono_particular += consumo_combustivel * fator_emissao  # Calcula a pegada total de carbono por uso de transportes particulares
+        media_anual_particular = pegada_carbono_particular * 12  # Emissão média anual de transporte particular
 
-        # Entrada de dados referente ao uso de Transportes Aéreos ------------------------------------------
-        viagens_nacionais = input("Informe o número de viagens nacionais realizadas por mês: ").strip()
-        viagens_internacionais = input("Informe o número de viagens internacionais realizadas por mês: ").strip()
+    #TRANSPORTE AÉREOS -------------------------------------------------------------------------------------------------------------------------
+        # Obtém o número de viagens aéreas
+        viagens_nacionais = request.form.get('viagens_nacionais') # Viagens Nacionais
+        viagens_internacionais = request.form.get('viagens_internacionais') # Viagens Internacionais
 
-        fator_emissao_nacional = 106.1  # Fator médio de kg/CO₂ por voo por passageiro
-        fator_emissao_internacional = 605.6  # Fator médio de kg/CO₂ por voo por passageiro
-        
-        pegada_carbono_aereo = 0  # Inicializando variável da pegada de carbono
+        # Fatores de emissão para viagens
+        fator_emissao_nacional = 106.1  # kg de CO2 por viagem nacional
+        fator_emissao_internacional = 605.6  # kg de CO2 por viagem internacional
 
-        if viagens_nacionais:  # Verifica se o usuário informou o número de viagens nacionais
-            viagens_nacionais = float(viagens_nacionais)
-            if viagens_nacionais < 0:
-                raise ValueError("O número de viagens nacionais deve ser positivo.")
-            pegada_carbono_aereo += viagens_nacionais * fator_emissao_nacional
+        pegada_carbono_aereo = 0
+        # Calculo da pegada total de carbono por uso de Transportes Aéreos
+        if viagens_nacionais:
+            viagens_nacionais = int(viagens_nacionais)
+            pegada_carbono_aereo += viagens_nacionais * fator_emissao_nacional  # Calcula a pegada de carbono de viagens nacionais
 
-        if viagens_internacionais:  # Verifica se o usuário informou o número de viagens internacionais
-            viagens_internacionais = float(viagens_internacionais)
-            if viagens_internacionais < 0:
-                raise ValueError("O número de viagens internacionais deve ser positivo.")
-            pegada_carbono_aereo += viagens_internacionais * fator_emissao_internacional
+        if viagens_internacionais:
+            viagens_internacionais = int(viagens_internacionais)
+            pegada_carbono_aereo += viagens_internacionais * fator_emissao_internacional  # Calcula a pegada de carbono de viagens internacionais
+            
+    #RESÍDUOS -------------------------------------------------------------------------------------------------------------------------
+        # Obtém a quantidade de resíduos gerados
+        consumo_residuos = request.form.get('residuos_gerados')
 
+        # Fatores de emissão para resíduos -
+        fator_emissao_residuos = 1.2  # kg CO2 por kg de resíduos
 
-    #Atividades Cotianas em relação a Produção de Resíduos
-        # Entrada de dados referente a produção de resíduos ------------------------------------------
-        residuos_gerados = input("Informe a quantidade total de resíduos sólidos gerados mensalmente em kg: ").strip()
+        pegada_carbono_residuos = 0 
+        # Calculo da pegada total de carbono por Resíduos Gerados
+        if consumo_residuos:
+            consumo_residuos = float(consumo_residuos)
+            pegada_carbono_residuos += consumo_residuos * fator_emissao_residuos  # Calcula a pegada de carbono dos resíduos
+        media_anual_residuos = pegada_carbono_residuos * 12  # Emissão média anual de resíduos
 
-        if residuos_gerados:  # Valida o tipo de dado informado
-            residuos_gerados = float(residuos_gerados)
-            if residuos_gerados < 0:
-                raise ValueError("A quantidade de resíduos deve ser positiva.")
-        else:  # Valida se o campo foi preenchido
-            print("Informe a quantidade de resíduos gerados.")
-            return
+    #CARNE BOVINA -------------------------------------------------------------------------------------------------------------------------
+        # Obtém o consumo de carnes bovinas
+        consumo_carne = request.form.get('consumo_carne')
 
-        fator_emissao_residuos = 1.2 # Fator de emissão para resíduos sólidos em aterros sanitários (kg CO₂e por kg de resíduo)
-        pegada_carbono_residuos = 0 # Inicializando variável da pegada de carbono
+        # Fatores de emissão para carne
+        fator_emissao_carne = 27  # kg CO2 por kg de carne
 
-        pegada_carbono_residuos += residuos_gerados * fator_emissao_residuos # Cálculo da pegada de carbono em relação ao consumo de resíduos
-        
-
-    #Atividades Cotianas em relação ao consumo de Carne Bovina
-        # Entrada de dados referente ao consumo de carne bovina ------------------------------------------
-        consumo_carne = input("Informe a quantidade de carne bovina consumida por mês (em kg): ").strip()
-
-        if consumo_carne:  # Valida o tipo de dado informado
+        pegada_carbono_carne = 0 
+        # Calculo da pegada total de carbono por Consumo de Carne Bovina
+        if consumo_carne:
             consumo_carne = float(consumo_carne)
-            if consumo_carne < 0:
-                raise ValueError("A quantidade de carne deve ser positiva.")
-        else:  # Valida se o campo foi preenchido
-            print("Informe a quantidade de carne consumida.")
-            return
+            pegada_carbono_carne += consumo_carne * fator_emissao_carne  # Calcula a pegada de carbono da carne
+        media_anual_carne = pegada_carbono_carne * 12  # Emissão média anual de carne
 
-        fator_emissao_carne = 27  # Fator de emissão para carne bovina (kg CO₂ por kg de carne)
-        pegada_carbono_carne = 0
+    #EMISSÕES TOTAIS -------------------------------------------------------------------------------------------------------------------------
+        total_emissoes = (
+            pegada_carbono_eletricidade + 
+            pegada_carbono_gas + 
+            pegada_carbono_particular + 
+            pegada_carbono_aereo + 
+            pegada_carbono_residuos + 
+            pegada_carbono_carne
+        )/1000  # Convertendo total de kg CO2 para tCO2e
 
-        pegada_carbono_carne += consumo_carne * fator_emissao_carne  # Cálculo da pegada de carbono em relação ao consumo de carne bovina
+        total_emissoes_media = total_emissoes * 12
 
-    # Calculando o valor total das emissões somadas de todas as atividades
-        emissao_total_carbono = (pegada_carbono_eletricidade + pegada_carbono_gas + pegada_carbono_particular + pegada_carbono_aereo + pegada_carbono_residuos + pegada_carbono_carne)/1000
-        print(f"Emissões Totais de Carbono: {emissao_total_carbono:.2f} CO₂e")
+    #CRÉDITO DE CARBONO -------------------------------------------------------------------------------------------------------------------------
+        credito_carbono = total_emissoes
 
-    # Calculando a qauantidade total de Créditos de Carbono através das Emissões Totais -> 1 crédito equivale a 1 tonelada de CO2
-        creditos_carbono = 0
-        creditos_carbono += round(emissao_total_carbono)  # Arredondando o total de créditos de carbono
-        print(f"Créditos de Carbono: {creditos_carbono:.0f} CO₂e")
+    #ÁRVORES PLANTADAS -------------------------------------------------------------------------------------------------------------------------
+        sequestro_arvore = 0.0059  # tCO2e/árvore
+        arvores_plantadas = total_emissoes / sequestro_arvore
 
+    #VALOR A SER PAGO -------------------------------------------------------------------------------------------------------------------------
+        valor_credito = 63.50  # R$ 63,50 por crédito de carbono
 
+        valor_total = credito_carbono * valor_credito # Total a ser pago em R$
+
+        # Arredondando a saída dos valores
+        pegada_carbono_eletricidade = round(pegada_carbono_eletricidade, 2)
+        media_anual_eletricidade = round(media_anual_eletricidade, 2)
+        pegada_carbono_gas = round(pegada_carbono_gas, 2)
+        media_anual_gas = round(media_anual_gas, 2)
+        media_anual_particular = round(media_anual_particular, 2)
+        pegada_carbono_particular = round(pegada_carbono_particular, 2)
+        media_anual_residuos = round(media_anual_residuos, 2)
+        pegada_carbono_residuos = round(pegada_carbono_residuos, 2)
+        media_anual_carne = round(media_anual_carne, 2)
+        pegada_carbono_carne = round(pegada_carbono_carne, 2)
+        total_emissoes = round(total_emissoes, 2)
+        credito_carbono = round(credito_carbono, 0)
+        arvores_plantadas = round(arvores_plantadas, 0)
+        valor_total = round(valor_total, 2)
+        total_emissoes_media = round(total_emissoes_media, 2)
+
+        # Renderiza o template com o valor obtido em cada variável
+        return render_template(
+            'index.html',
+            nome=nome,
+            pegada_carbono_eletricidade=pegada_carbono_eletricidade,
+            media_anual_eletricidade=media_anual_eletricidade,
+            fator_emissao_eletricidade=fator_emissao_eletricidade,
+
+            pegada_carbono_gas=pegada_carbono_gas,
+            media_anual_gas=media_anual_gas,
+            fator_emissao_botijao=fator_emissao_botijao,
+            fator_emissao_gas_encanado=fator_emissao_gas_encanado,
+
+            media_anual_particular=media_anual_particular,
+            fator_emissao_nacional=fator_emissao_nacional,
+            fator_emissao_internacional=fator_emissao_internacional,
+            pegada_carbono_particular=pegada_carbono_particular,
+            fator_emissao=fator_emissao,
+
+            media_anual_residuos=media_anual_residuos,
+            pegada_carbono_residuos=pegada_carbono_residuos,
+            fator_emissao_residuos=fator_emissao_residuos,
+
+            media_anual_carne=media_anual_carne,
+            pegada_carbono_carne=pegada_carbono_carne,
+            fator_emissao_carne=fator_emissao_carne,
+
+            total_emissoes=total_emissoes,
+            total_emissoes_media=total_emissoes_media,
+
+            credito_carbono=int(credito_carbono),
+            arvores_plantadas=int(arvores_plantadas),
+            valor_total=valor_total,
+
+            mostrar_secao4=True
+        )
     except ValueError as e:
-        print(f"Erro: {e}")
+        return render_template('index.html', erro=str(e)) # Retornando mensagens de erro para o HTML 
 
-# Executar o cálculo
-calcular_pegada_carbono()
+if __name__ == '__main__':
+    app.run(debug=True) 
